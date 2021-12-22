@@ -1,0 +1,23 @@
+{
+  "name": "serverless-nodejs",
+  "version": "1.0.0",
+  "description": "Serverless example - api in nodes.js",
+  "main": "index.js",
+  "scripts": {
+    "serverless": "serverless",
+    "serverless:version": "serverless --version",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/migacz1125/serverless-nodejs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/migacz1125/serverless-nodejs/issues"
+  },
+  "homepage": "https://github.com/migacz1125/serverless-nodejs#readme",
+  "devDependencies": {}
+}
