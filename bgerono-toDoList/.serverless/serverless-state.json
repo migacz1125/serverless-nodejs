@@ -1,15 +1,15 @@
 {
   "service": {
-    "service": "bgerono-service",
+    "service": "bgerono-todolist",
     "serviceObject": {
-      "name": "bgerono-service"
+      "name": "bgerono-todolist"
     },
     "provider": {
       "name": "aws",
       "runtime": "nodejs12.x",
       "lambdaHashingVersion": "20201221",
+      "region": "eu-central-1",
       "stage": "dev",
-      "region": "us-east-1",
       "versionFunctions": true,
       "compiledCloudFormationTemplate": {
         "AWSTemplateFormatVersion": "2010-09-09",
@@ -87,7 +87,7 @@
           "HelloLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/bgerono-service-dev-hello"
+              "LogGroupName": "/aws/lambda/bgerono-todolist-dev-hello"
             }
           },
           "IamRoleLambdaExecution": {
@@ -115,7 +115,7 @@
                     "Fn::Join": [
                       "-",
                       [
-                        "bgerono-service",
+                        "bgerono-todolist",
                         "dev",
                         "lambda"
                       ]
@@ -132,7 +132,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/bgerono-service-dev*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/bgerono-todolist-dev*:*"
                           }
                         ]
                       },
@@ -143,7 +143,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/bgerono-service-dev*:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/bgerono-todolist-dev*:*:*"
                           }
                         ]
                       }
@@ -156,7 +156,7 @@
                 "Fn::Join": [
                   "-",
                   [
-                    "bgerono-service",
+                    "bgerono-todolist",
                     "dev",
                     {
                       "Ref": "AWS::Region"
@@ -174,14 +174,13 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/bgerono-service/dev/1640206267097-2021-12-22T20:51:07.097Z/bgerono-service.zip"
+                "S3Key": "serverless/bgerono-todolist/dev/1640769239498-2021-12-29T09:13:59.498Z/bgerono-todolist.zip"
               },
               "Handler": "handler.hello",
               "Runtime": "nodejs12.x",
-              "FunctionName": "bgerono-service-dev-hello",
+              "FunctionName": "bgerono-todolist-dev-hello",
               "MemorySize": 1024,
               "Timeout": 6,
-              "Description": "hello world lambda function",
               "Role": {
                 "Fn::GetAtt": [
                   "IamRoleLambdaExecution",
@@ -193,16 +192,107 @@
               "HelloLogGroup"
             ]
           },
-          "HelloLambdaVersioneRyCtmHHZevL4olIjL1Qm7tK793fGOmEhgwel8gnmU": {
+          "HelloLambdaVersionLejhp2pHpwp8ddM3dUn7ZEs32xcBRRWtlDCIAMu2mI": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "HelloLambdaFunction"
               },
-              "CodeSha256": "hEx1Wv6g7UK/+jH7r1hTQWTqeXn3hmMwtPBeu/GCrDY=",
-              "Description": "hello world lambda function"
+              "CodeSha256": "dFRFy+JDLDv4xMAQQwWSOPK+r7Im9G8RFJc+mpYmeRM="
             }
+          },
+          "HttpApi": {
+            "Type": "AWS::ApiGatewayV2::Api",
+            "Properties": {
+              "Name": "dev-bgerono-todolist",
+              "ProtocolType": "HTTP"
+            }
+          },
+          "HttpApiStage": {
+            "Type": "AWS::ApiGatewayV2::Stage",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "StageName": "$default",
+              "AutoDeploy": true,
+              "DefaultRouteSettings": {
+                "DetailedMetricsEnabled": false
+              }
+            }
+          },
+          "HelloLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "HelloLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationHello": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"HelloLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 6500
+            }
+          },
+          "HttpApiRouteGetHello": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /hello",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationHello"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationHello"
           }
         },
         "Outputs": {
@@ -211,16 +301,50 @@
               "Ref": "ServerlessDeploymentBucket"
             },
             "Export": {
-              "Name": "sls-bgerono-service-dev-ServerlessDeploymentBucketName"
+              "Name": "sls-bgerono-todolist-dev-ServerlessDeploymentBucketName"
             }
           },
           "HelloLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersioneRyCtmHHZevL4olIjL1Qm7tK793fGOmEhgwel8gnmU"
+              "Ref": "HelloLambdaVersionLejhp2pHpwp8ddM3dUn7ZEs32xcBRRWtlDCIAMu2mI"
             },
             "Export": {
-              "Name": "sls-bgerono-service-dev-HelloLambdaFunctionQualifiedArn"
+              "Name": "sls-bgerono-todolist-dev-HelloLambdaFunctionQualifiedArn"
+            }
+          },
+          "HttpApiId": {
+            "Description": "Id of the HTTP API",
+            "Value": {
+              "Ref": "HttpApi"
+            },
+            "Export": {
+              "Name": "sls-bgerono-todolist-dev-HttpApiId"
+            }
+          },
+          "HttpApiUrl": {
+            "Description": "URL of the HTTP API",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  ".execute-api.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix"
+                  }
+                ]
+              ]
+            },
+            "Export": {
+              "Name": "sls-bgerono-todolist-dev-HttpApiUrl"
             }
           }
         }
@@ -313,15 +437,23 @@
     "functions": {
       "hello": {
         "handler": "handler.hello",
-        "description": "hello world lambda function",
-        "events": [],
-        "name": "bgerono-service-dev-hello",
+        "events": [
+          {
+            "httpApi": {
+              "path": "/hello",
+              "method": "get"
+            },
+            "resolvedMethod": "GET",
+            "resolvedPath": "/hello"
+          }
+        ],
+        "name": "bgerono-todolist-dev-hello",
         "package": {},
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs12.x",
         "vpc": {},
-        "versionLogicalId": "HelloLambdaVersioneRyCtmHHZevL4olIjL1Qm7tK793fGOmEhgwel8gnmU"
+        "versionLogicalId": "HelloLambdaVersionLejhp2pHpwp8ddM3dUn7ZEs32xcBRRWtlDCIAMu2mI"
       }
     },
     "configValidationMode": "warn",
@@ -340,10 +472,10 @@
     },
     "layers": {},
     "isDashboardMonitoringPreconfigured": false,
-    "artifact": "C:\\Users\\bgerono\\Projects\\serverless-nodejs\\myService\\.serverless\\bgerono-service.zip"
+    "artifact": "C:\\Users\\bgerono\\Projects\\serverless-nodejs\\bgerono-toDoList\\.serverless\\bgerono-todolist.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/bgerono-service/dev/1640206267097-2021-12-22T20:51:07.097Z",
-    "artifact": "bgerono-service.zip"
+    "artifactDirectoryName": "serverless/bgerono-todolist/dev/1640769239498-2021-12-29T09:13:59.498Z",
+    "artifact": "bgerono-todolist.zip"
   }
 }

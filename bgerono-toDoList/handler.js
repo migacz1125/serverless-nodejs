@@ -1,14 +1,14 @@
 'use strict';
 
 module.exports.hello = async (event, context) => {
-  console.log('Remaining time: ', context.getRemainingTimeInMillis());
-  console.log('Function name: ', context.functionName);
+    console.log('Remaining time: ', context.getRemainingTimeInMillis());
+    console.log('Function name: ', context.functionName);
 
-  return {
+    return {
     statusCode: 200,
     body: JSON.stringify(
       {
-        message: 'Go Serverless v2.0! Your function executed successfully!',
+        message: 'Hello world message',
         input: event,
       },
       null,
