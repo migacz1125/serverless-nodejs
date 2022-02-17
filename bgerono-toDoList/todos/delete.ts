@@ -1,7 +1,5 @@
-import {DeleteItemCommand, DeleteItemCommandInput,
-    DeleteItemCommandOutput, DynamoDBClient, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
+import {DeleteItemCommand, DeleteItemCommandInput, DeleteItemCommandOutput, DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Callback, Context } from 'aws-lambda';
-import { v1 as uuid } from 'uuid';
 import {getDBClient} from "./dynamo-db-client";
 
 export const deleteList = (event: APIGatewayProxyEvent, context: Context, callback: Callback<APIGatewayProxyResult>) => {

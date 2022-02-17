@@ -14,10 +14,6 @@ export const getDBClient = () => {
         dynamoDBClientConfig = { region: awsRegion };
     }
 
-    // console.log('---- config: ', dynamoDBClientConfig);
-
-    const dynamoDBClient: DynamoDBClient = new DynamoDBClient(dynamoDBClientConfig);
-
-    return dynamoDBClient;
+    return new DynamoDBClient(dynamoDBClientConfig);
 }
 

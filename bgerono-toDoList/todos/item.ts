@@ -3,7 +3,6 @@ import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult,  C
 import { getDBClient } from "./dynamo-db-client";
 
 export const item: APIGatewayProxyHandler = (event: APIGatewayProxyEvent, context: Context, callback: Callback<APIGatewayProxyResult>) => {
-    console.log('---- event.pathParameters: ', event);
     const dynamoDBClient: DynamoDBClient = getDBClient();
     let response: APIGatewayProxyResult;
 
