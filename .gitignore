@@ -1,1 +1,5 @@
 .idea/
+/bgerono-toDoList/node_modules/
+/bgerono-toDoList/.dynamodb/
+/bgerono-toDoList/.serverless/
+/bgerono-toDoList/.build/
